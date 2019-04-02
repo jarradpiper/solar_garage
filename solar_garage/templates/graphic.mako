@@ -48,7 +48,7 @@
             0 2px 4px 0 rgba(0, 0, 0, 0.08);
             font-family: 'Roboto Condensed', sans-serif;
             display: flex;
-            align-items: centergit;
+            align-items: center;
             justify-content: center;
         }
 
