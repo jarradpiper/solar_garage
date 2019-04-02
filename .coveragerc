@@ -1,0 +1,3 @@
+[run]
+source = solar_garage
+omit = solar_garage/test*
