@@ -3,7 +3,7 @@ Solar Garage
 
 Simple to:
 
-- Collect data from the Solar Garage at Tonsley
+- Collect data from the Solar Garage at Tonsley via JSON API
 - Store data in a database
 - Provide a cool visualisation of that data
 - Provide chart reports of the data
@@ -13,10 +13,10 @@ Simple to:
 Getting Started
 ---------------
 
-- cd <directory containing this file>
-
-- $VENV/bin/pip install -e .
-
-- $VENV/bin/pserve development.ini
+```
+cd <directory containing this file>
+$VENV/bin/pip install -e .
+$VENV/bin/pserve development.ini
+```
 
 

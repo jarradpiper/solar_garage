@@ -28,8 +28,8 @@ def api_get_graphic(request: Request):
 
     return {
         'bays': [get_last('bay-' + str(i)) for i in range(1, 7)],
-        'panels': get_last('panels'),
-        'batteryIn': get_last('battery-in'),
-        'batteryOut': get_last('battery-out')
-
+        'grid': get_last('grid'),
+        'solar': get_last('solar'),
+        'battery-in': get_last('battery-in'),
+        'battery-out': get_last('battery-out')
     }

@@ -49,13 +49,19 @@
             font-family: 'Roboto Condensed', sans-serif;
             display: flex;
             align-items: center;
+            transition: background-color 2s ease-out;
             justify-content: center;
+        }
+
+        .bay > div {
+            font-size: 32px;
+            font-weight: 900;
         }
 
         .car-bay {
             width: 200px;
             height: 200px;
-            background-color: #004D40;
+            background-color: #244e63;
             display: flex;
             flex-direction: column;
             align-content: flex-start;
@@ -73,10 +79,14 @@
         }
 
         .grid {
-            background-color: #424242;
+            ## background-color: #f4f4f4;
+            color: #404040;
+            ## background-position: center;
+            background: url('/static/transmission.png') no-repeat center;
             height: 200px;
             width: 200px;
         }
+
 
         #below {
             ## display: flex;
@@ -85,14 +95,25 @@
         }
 
         #solar-panels {
-            width: 400px;
+            width: 300px;
             height: 200px;
             background-color: #0ab24f;
         }
 
-        #bay-1, #bay-2 {
+        #bay-1, #bay-6 {
             ## Fast charging bays
-            background-color: #b2a71a
+            background-color: #23604f;
+            transition: background-color 2s ease-out;
+        }
+
+        .charging {
+            background-color: #00d1b5 !important;
+            transition: background-color 2s ease-out;
+        }
+
+        .fast-charging {
+            background-color: #51b5d9 !important;
+            transition: background-color 2s ease-out;
         }
 
         .row {
@@ -100,6 +121,10 @@
             flex-direction: row;
         }
 
+        .solar, .battery {
+            display: flex;
+            flex-direction: column;
+        }
 
 
     </style>
@@ -115,7 +140,7 @@
         </span>
     </div>
     <div class="row">
-        <div class="bay" id="solar-panels">
+        <div class="bay solar" id="solar-panels">
             <h3>Solar Panels</h3>
             <div id="power-panels"></div>
         </div>
@@ -130,7 +155,7 @@
             <div id="power-1"></div>
         </div>
         <div class="bay car-bay" id="bay-2">
-            <h3>Bay 2 (FAST)</h3>
+            <h3>Bay 2</h3>
             <div id="power-2"></div>
         </div>
         <div class="bay car-bay" id="bay-3">
@@ -146,13 +171,14 @@
             <div id="power-5"></div>
         </div>
         <div class="bay car-bay" id="bay-6">
-            <h3>Bay 6</h3>
+            <h3>Bay 6 (FAST)</h3>
             <div id="power-6"></div>
         </div>
     </div>
     <div id="below">
-        <div class="bay grid" id="grid">
-            <h3>Grid</h3>
+        <div class="bay grid solar" id="grid">
+            <h1>Power Grid</h1>
+             <div id="power-grid"></div>
         </div>
 
 
@@ -240,15 +266,15 @@
             color: 'blue',
             size: 4,
             path: 'grid',
-            endSocketGravity: 100,
+            ##  endSocketGravity: 100,
             startSocket: 'bottom',
             endSocket: 'top',
-            x: '300',
+            x: '100%',
             y: '100%',
             dash: {animation: false},
             dropShadow: true,
         });
-        panels2grid.setOptions({start: LeaderLine.pointAnchor({element: panels2grid.start, x: '76.5%', y: '100%'})});
+        panels2grid.setOptions({start: LeaderLine.pointAnchor({element: panels2grid.start, x: '94%', y: '100%'})});
 
         let panels2battery = new LeaderLine(panelsEl, batteryEl, {
             color: 'blue',
@@ -273,41 +299,59 @@
         let $panelsPower = $('#power-panels');
 
         function power(obj) {
-            let p = (obj.voltage * obj.current / 1000) + 'kW';
-            ##  console.log(p);
+            let p = (obj.voltage * obj.current[0] / 1000) + 'kW';
             return p;
         }
+
         function updateCallback(data) {
             data.bays.forEach(function (obj, index) {
                 let charging = obj.current !== 0;
                 let bayId = obj.thing.split('-')[1];
                 let $power = $('#power-' + bayId);
                 if (charging) {
+
+                    $('#bay-' + bayId).addClass((bayId === '6' || bayId === '1' ? 'fast-' : '') + 'charging');
                     if ($power.is(":hidden")) {
                         $power.fadeIn();
                     }
                     $power.html(power(obj) + ' <i class="fas fa-bolt"></i>');
                 } else {
                     $power.fadeOut();
+                    $('#bay-' + bayId).removeClass((bayId === '6' || bayId === '1' ? 'fast-' : '') + 'charging');
                 }
                 lines[obj.thing].setOptions({dash: {animation: charging}})
             });
-            if (data.batteryIn) {
-                panels2battery.setOptions({start: panelsEl, end: gridEl, dash:{animation:data.batteryIn.current !== 0}});
-                $batteryPower.html(power(data.batteryIn));
-            } else if (data.batteryOut) {
-                panels2battery.setOptions({start: gridEl, end: panelsEl, dash:{animation:data.batteryOut.current !== 0}});
-                $batteryPower.text(power(data.batteryOut));
+            if (data['battery-in']) {
+                panels2battery.setOptions({
+                    start: panelsEl,
+                    end: batteryEl,
+                    dash: {animation: data['battery-in'].current !== 0}
+                });
+                $batteryPower.html(power(data['battery-in']));
+            } else if (data['battery-out']) {
+                panels2battery.setOptions({
+                    start: batteryEl,
+                    end: panelsEl,
+                    dash: {animation: data['battery-out'].current !== 0}
+                });
+                $batteryPower.text(power(data['battery-out']));
             }
-            if (data.panels) {
-                $panelsPower.text(power(data.panels));
-                sun2panels.setOptions({dash:{animation:data.panels.current !== 0}});
+            if (data.solar) {
+                $panelsPower.text(power(data.solar));
+                sun2panels.setOptions({dash: {animation: data.solar.current !== 0}});
+            }
+            if (data.grid) {
+                $("#power-grid").text(power(data.grid))
+
             }
         }
+
         (function () {
             function update() {
-                getStatus(updateCallback);
+                if(document.hasFocus())
+                    getStatus(updateCallback);
             }
+
             update();
             setInterval(update, 7000);
         })();
