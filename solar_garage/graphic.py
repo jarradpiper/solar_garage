@@ -33,3 +33,8 @@ def api_get_graphic(request: Request):
         'battery-in': get_last('battery-in'),
         'battery-out': get_last('battery-out')
     }
+
+
+@view_config(route_name='show_model', renderer='templates/model.mako')
+def show_mdoel(request):
+    return {}

@@ -16,18 +16,22 @@ def api(request: Request):
     # make sure all the right stuff is in there
 
     bays = [
-        ('bay-1', ['FAST_CHARGE_1_CURRENT_1', 'FAST_CHARGE_1_CURRENT_2', 'FAST_CHARGE_1_CURRENT_3'], 'FAST_CHARGE_1_VOLTAGE'),
+        ('bay-1', ['FAST_CHARGE_1_CURRENT_1', 'FAST_CHARGE_1_CURRENT_2', 'FAST_CHARGE_1_CURRENT_3'],
+         'FAST_CHARGE_1_VOLTAGE'),
         ('bay-2', ['AC_CHARGE_1_CURRENT'], 'AC_CHARGE_1_VOLTAGE'),
         ('bay-3', ['AC_CHARGE_2_CURRENT'], 'AC_CHARGE_2_VOLTAGE'),
         ('bay-4', ['AC_CHARGE_3_CURRENT'], 'AC_CHARGE_3_VOLTAGE'),
         ('bay-5', ['AC_CHARGE_4_CURRENT'], 'AC_CHARGE_4_VOLTAGE'),
-        ('bay-6', ['FAST_CHARGE_2_CURRENT_1', 'FAST_CHARGE_2_CURRENT_2', 'FAST_CHARGE_2_CURRENT_3'], 'FAST_CHARGE_2_VOLTAGE'),
+        ('bay-6', ['FAST_CHARGE_2_CURRENT_1', 'FAST_CHARGE_2_CURRENT_2', 'FAST_CHARGE_2_CURRENT_3'],
+         'FAST_CHARGE_2_VOLTAGE'),
         ('battery-in', ['BATTERY_IN_CURRENT'], 'BATTERY_IN_VOLTAGE'),
         ('battery-out', ['BATTERY_OUT_CURRENT'], 'BATTERY_OUT_VOLTAGE'),
         ('grid', ["GRID_CURRENT_1", "GRID_CURRENT_2", "GRID_CURRENT_3"], "GRID_VOLTAGE"),
         ('solar', ["SOLAR_CURRENT_1", "SOLAR_CURRENT_2", "SOLAR_CURRENT_3"], "SOLAR_VOLTAGE"),
     ]
     d = js['data']
+    rows = []
+    cache_obj = {'bays': {}}
     for b in bays:
         obj = {
             'datetime': datetime.fromtimestamp(d['datetime']),
@@ -36,6 +40,8 @@ def api(request: Request):
             'current': [d[f] for f in b[1]],
             'voltage': d[b[-1]],
         }
-
-        request.db_sg.status.insert_one(obj)
+        rows.append(obj)
+        #cache_obj['bays'][b[0]] =
+    request.db_sg.last.insert_one(cache_obj)
+    request.db_sg.status.insert_many(rows)
     return {"success": True}

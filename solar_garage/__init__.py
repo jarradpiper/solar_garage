@@ -23,6 +23,7 @@ def main(global_config, **settings):
     config.add_route('latest', '/latest')
     config.add_route('last', '/last/{thing}')
     config.add_route('show_graphic', '/graphic')
+    config.add_route('show_model', '/model')
     config.add_route('api_graphic', '/graphic.json')
     config.add_route('charts', '/charts')
     config.add_route('api_charts', '/charts_{thing}.json')
